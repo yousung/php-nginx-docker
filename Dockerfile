@@ -1,12 +1,12 @@
-FROM php:7.4-fpm-alpine
+FROM php:7.3-fpm-alpine
 
-ENV EXT_APCU_VERSION=5.1.18
+ENV EXT_APCU_VERSION=5.1.10
 ENV EXT_REDIS_VERSION=5.3.1
-ENV EXT_IGBINARY_VERSION=3.1.2
+ENV EXT_IGBINARY_VERSION=2.0.8
 
 LABEL \
     MAINTAINER='lovizu <nug22kr@gmail.com>' \
-    PHP_VERSION='7.4' \
+    PHP_VERSION='7.3' \
     APCU_VERSION='${EXT_APCU_VERSION}' \
     REDIS_VERSION='${EXT_REDIS_VERSION}' \
     IGBINARY_VERSION='${EXT_IGBINARY_VERSION}'
@@ -30,9 +30,8 @@ RUN apk update && apk add git zip gnu-libiconv supervisor && \
 # for ext-igbinary
     mkdir -p /usr/src/php/ext/igbinary /run/nginx/ && \
     curl -fsSL https://github.com/igbinary/igbinary/archive/$EXT_IGBINARY_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/igbinary --strip 1 && \
-    docker-php-ext-configure gd \
-        --with-freetype=/usr/include/ \
-        --with-jpeg=/usr/include/ && \
+    docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+        && docker-php-ext-install gd && \
     NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
     docker-php-ext-install -j${NPROC} opcache intl bcmath zip pdo_mysql sockets pcntl gd igbinary && \
     apk del freetype-dev libpng-dev libjpeg-turbo-dev && \
